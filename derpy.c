@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <signal.h>
 #include <unistd.h>
+#include <string.h>
 #include "conn.h"
 #include "parse.h"
 
@@ -34,16 +35,14 @@ void process_line(struct irc_line *ln) {
 }
 
 int process_lines() {
-    char *line;
     struct irc_line *ln;
+    char line[512];
 
-    while (linebuf_pop(g_Conn->buf, &line)) {
+    while (static_buffer_pop_line(&g_Conn->buf, line, 512)) {
         printf(">>> %s\n", line);
         ln = irc_parse(line);
 
         process_line(ln);
-
-        free(line);
     }
 
     return 0;

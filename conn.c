@@ -28,13 +28,6 @@ struct irc_conn *irc_conn_open(const char *host, unsigned short port) {
         goto error;
     }
 
-    conn->buf = linebuf_new();
-
-    if (!conn->buf) {
-        fprintf(stderr, "irc_conn_open(): failed to allocate linebuf\n");
-        goto error;
-    }
-
     res = gethostbyname(host);
 
     if (res == NULL) {
@@ -131,7 +124,7 @@ int irc_conn_do_io(struct irc_conn *conn) {
         return -1;
     }
 
-    linebuf_append(conn->buf, buf, rc);
+    static_buffer_append(&conn->buf, buf, rc);
 
     return 0;
 }
@@ -140,10 +133,6 @@ void irc_conn_close_free(struct irc_conn *conn) {
     if (conn) {
         if (conn->fd != -1) {
             close(conn->fd);
-        }
-
-        if (conn->buf) {
-            linebuf_destroy(conn->buf);
         }
 
         free(conn);

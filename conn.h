@@ -4,7 +4,7 @@
 
 struct irc_conn {
     int fd;
-    linebuf_t *buf;
+    struct static_buffer buf;
 };
 
 struct irc_conn *irc_conn_open(const char *host, unsigned short port);

@@ -4,6 +4,8 @@ LDFLAGS :=
 OBJECTS := parse.o linebuf.o conn.o derpy.o
 BINARY  := cerpy
 
+all: $(BINARY)
+
 $(BINARY): $(OBJECTS)
 	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
