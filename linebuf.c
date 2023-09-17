@@ -4,6 +4,8 @@
  * been provided to you with this file.
  */
 #include "linebuf.h"
+#include <ctype.h>
+#include <assert.h>
 
 linebuf_t *linebuf_new() {
     linebuf_t *linebuf;
@@ -43,15 +45,27 @@ void linebuf_append(linebuf_t *linebuf, char *data, int data_len) {
 
 int linebuf_pop(linebuf_t *linebuf, char **outline) {
     char *newline_pos = (char *)memchr(linebuf->buffer, '\n', linebuf->len);
-    int line_len;
+    long bytesToCopy;
 
     if (newline_pos != NULL) {
-        line_len = (newline_pos - linebuf->buffer);
-        *outline = (char *)calloc(1, line_len + 1);
+        bytesToCopy = (newline_pos + 1L) - linebuf->buffer; /* +1 to include \n */
+        assert(bytesToCopy > 0);
 
-        strncpy(*outline, linebuf->buffer, line_len);
-        memmove(linebuf->buffer, newline_pos + 1, linebuf->len - line_len);
-        linebuf->len -= line_len;
+        *outline = (char *)calloc(1, bytesToCopy + 1);
+
+        memcpy(*outline, linebuf->buffer, bytesToCopy);
+        (*outline)[bytesToCopy] = '\0';
+
+        linebuf->len -= bytesToCopy;
+
+        memmove(linebuf->buffer, linebuf->buffer + bytesToCopy, linebuf->len);
+
+        /* Remove trailing whitespace */
+        while (bytesToCopy != 0 && isspace((*outline)[bytesToCopy - 1])) {
+            (*outline)[bytesToCopy - 1] = '\0';
+            bytesToCopy--;
+        }
+
         return 1;
     }
 
