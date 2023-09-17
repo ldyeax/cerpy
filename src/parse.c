@@ -8,12 +8,12 @@
 #define SKIP_SPACES(P) { while (*P && isspace(*P)) { P++; } }
 #define COUNT_AND_SKIP_NON_SPACES(P, C) { while (*P && !isspace(*P)) { P++; C++; } }
 
-void irc_parse_hostmask(struct irc_hostmask *hostmask, const char *raw, int rawLength) {
+void irc_parse_hostmask(struct irc_hostmask *hostmask, const char *raw, size_t rawLength) {
     const char *atSymbolPtr;
     const char *nickSepPtr;
-    int nickLength;
-    int userLength;
-    int hostLength;
+    size_t nickLength;
+    size_t userLength;
+    size_t hostLength;
 
     assert(raw != NULL);
     assert(rawLength > 0);
@@ -60,9 +60,9 @@ struct irc_line *irc_parse(const char *line) {
 
     const char *ptr;
     const char *hostmaskPtr;
-    int hostmaskLength;
+    size_t hostmaskLength;
     const char *numericPtr;
-    int numericLength;
+    size_t numericLength;
     int paramCount;
     int paramLength;    
     const char *paramPtr;
@@ -79,10 +79,10 @@ struct irc_line *irc_parse(const char *line) {
         ptr = line + 1;
 
         /* Advance ptr past the hostmask portion. */
-        COUNT_AND_SKIP_NON_SPACES(ptr, hostmaskLength);
+        COUNT_AND_SKIP_NON_SPACES(ptr, hostmaskLength)
 
         /* Skip the whitespace after the hostmask */
-        SKIP_SPACES(ptr);
+        SKIP_SPACES(ptr)
 
         irc_parse_hostmask(&(parsed.hostmask), hostmaskPtr, hostmaskLength);
 
@@ -94,10 +94,10 @@ struct irc_line *irc_parse(const char *line) {
     ptr = numericPtr;
 
     /* Advance ptr past the command / numeric. */
-    COUNT_AND_SKIP_NON_SPACES(ptr, numericLength);
+    COUNT_AND_SKIP_NON_SPACES(ptr, numericLength)
 
     /* Skip the whitespace after the numeric */
-    SKIP_SPACES(ptr);
+    SKIP_SPACES(ptr)
 
     /* This assertion will be hit in development if we ever encounter something unseemly */
     assert(numericLength < IRC_MAX_COMMAND);
@@ -121,9 +121,9 @@ struct irc_line *irc_parse(const char *line) {
             ptr++;
         }
 
-        COUNT_AND_SKIP_NON_SPACES(ptr, paramLength);
+        COUNT_AND_SKIP_NON_SPACES(ptr, paramLength)
 
-        SKIP_SPACES(ptr);
+        SKIP_SPACES(ptr)
 
         /* This assertion will be hit in development if we ever encounter something unseemly */
         assert(paramLength < IRC_MAX_PARAM);
@@ -161,18 +161,18 @@ int dynamic_split(const char *str, struct split_struct *split) {
     partIndex = 0;
 
     while (*str) {
-        SKIP_SPACES(str);
+        SKIP_SPACES(str)
 
         partLength = 0;
         partPtr = str;
 
         outPtr = NULL;
 
-        COUNT_AND_SKIP_NON_SPACES(str, partLength);
+        COUNT_AND_SKIP_NON_SPACES(str, partLength)
         outPtr = (char *) malloc(partLength + 1);
 
         if (!outPtr) {
-            fprintf(stderr, "dyanmic_split(): failed to allocate outPtr\n");
+            fprintf(stderr, "dynamic_split(): failed to allocate outPtr\n");
             return 0;
         }
 

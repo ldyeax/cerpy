@@ -34,7 +34,7 @@ void process_line(struct irc_line *ln) {
     }
 }
 
-int process_lines() {
+int process_lines(void) {
     struct irc_line *ln;
     char line[512];
 

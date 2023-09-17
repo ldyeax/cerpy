@@ -1,24 +1,20 @@
-/*
- * This file is part of linebuf.
- * This file is licensed under the terms of the MIT license, which should have
- * been provided to you with this file.
- */
 #include <ctype.h>
-#include <stdio.h>
 #include <assert.h>
 #include <string.h>
-#include "linebuf.h"
+#include "buffer.h"
 
-int static_buffer_append(struct static_buffer *buffer, char *data, int dataLength) {
+int static_buffer_append(struct static_buffer *buffer, char *data, size_t dataLength) {
+    size_t newCount;
+
     assert(buffer != NULL);
     assert(data != NULL);
 
     assert(dataLength > 0);
 
-    int newCount = buffer->count + dataLength;
+    newCount = buffer->count + dataLength;
 
     /* Assertion for development, if statement for production. Better to have it fail in prod than crash in prod. */
-    assert(newCount < STATIC_BUFFER_CAPACITY);
+    assert(newCount <= STATIC_BUFFER_CAPACITY);
 
     if (newCount > STATIC_BUFFER_CAPACITY) {
         return 0;
@@ -36,7 +32,7 @@ int static_buffer_append_str(struct static_buffer *buffer, char *str) {
 }
 
 int static_buffer_pop_line(struct static_buffer *buffer, char *outBuf, int outLen) {
-    int bytesToCopy; /* Number of bytes to copy from the buffer to the output */
+    ssize_t bytesToCopy; /* Number of bytes to copy from the buffer to the output */
     char *newlinePtr = (char *)memchr(buffer->data, '\n', buffer->count);
 
     assert(buffer != NULL);
@@ -62,8 +58,6 @@ int static_buffer_pop_line(struct static_buffer *buffer, char *outBuf, int outLe
     outBuf[bytesToCopy] = '\0';
 
     buffer->count -= bytesToCopy;
-
-    assert(buffer->count >= 0);
 
     /* memmove() of 0 doesn't fail, but there's no reason to try it if we don't have to. */
     if (buffer->count > 0) {

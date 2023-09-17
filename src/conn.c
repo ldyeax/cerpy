@@ -19,9 +19,7 @@ struct irc_conn *irc_conn_open(const char *host, unsigned short port) {
     struct hostent *res;
     struct sockaddr_in saddr;
 
-    fd = -1;
     conn = (struct irc_conn *) malloc(sizeof(struct irc_conn));
-    conn->fd = -1;
 
     if (!conn) {
         fprintf(stderr, "irc_conn_open(): failed to allocate memory\n");
@@ -63,10 +61,10 @@ error:
     return NULL;
 }
 
-int irc_conn_send(struct irc_conn *conn, const char *s) {
-    int sent;
-    int to_send;
-    int total_sent;
+ssize_t irc_conn_send(struct irc_conn *conn, const char *s) {
+    ssize_t sent;
+    size_t to_send;
+    size_t total_sent;
 
     if (!conn || conn->fd == -1) {
         fprintf(stderr, "irc_conn_send(): got an invalid IRC connection\n");
@@ -94,10 +92,10 @@ int irc_conn_send(struct irc_conn *conn, const char *s) {
 
     printf("<<< %s", s);
 
-    return total_sent;
+    return (ssize_t) total_sent;
 }
 
-int irc_conn_sendf(struct irc_conn *conn, const char *fmt, ...) {
+ssize_t irc_conn_sendf(struct irc_conn *conn, const char *fmt, ...) {
     char buf[512];
     va_list args;
 
@@ -109,10 +107,11 @@ int irc_conn_sendf(struct irc_conn *conn, const char *fmt, ...) {
 }
 
 int irc_conn_do_io(struct irc_conn *conn) {
-    char buf[512];
-    int rc;
+    char buf[STATIC_BUFFER_CAPACITY];
+    ssize_t rc;
 
-    rc = recv(conn->fd, buf, 512, 0);
+    /* receive as much as we can into the buffer */
+    rc = recv(conn->fd, buf, STATIC_BUFFER_CAPACITY - conn->buf.count, 0);
 
     if (rc == -1) {
         fprintf(stderr, "irc_conn_do_io(): recv() says: %s\n", strerror(errno));
