@@ -1,7 +1,7 @@
 CC      := gcc
-CFLAGS  := -Wall -Wextra -Wno-cpp -std=c89 -pedantic -D_FORTIFY_SOURCE=2 -O1 -g
+CFLAGS  := -Wall -Wextra -Wno-cpp -std=c89 -pedantic -D_FORTIFY_SOURCE=2 -O1 -g -Iinc/
 LDFLAGS := 
-OBJECTS := parse.o linebuf.o conn.o derpy.o
+OBJECTS := obj/parse.o obj/linebuf.o obj/conn.o obj/derpy.o
 BINARY  := cerpy
 
 all: $(BINARY)
@@ -9,7 +9,7 @@ all: $(BINARY)
 $(BINARY): $(OBJECTS)
 	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
-%.o: %.c
+obj/%.o: src/%.c
 	$(CC) $(CFLAGS) -c -o $@ $< 
 
 clean:
